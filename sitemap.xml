@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-
-  <url>
-    <loc>https://resta-travel.github.io/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>1.0</priority>
-  </url>
-
-  <url>
-    <loc>https://resta-travel.github.io/travel-palembang-lampung/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
+<url>
+<loc>https://web.address.of.your.nifty.website/</loc>
+<lastmod>2025-06-21T05:34:08+07:00</lastmod>
+</url>
+<url>
+<loc>https://web.address.of.your.nifty.website/Palembang-Kota-Pempek.html</loc>
+<lastmod>2025-06-21T05:34:08+07:00</lastmod>
+</url>
+<url>
+<loc>https://web.address.of.your.nifty.website/nomor-travel-palembang-lampung.html</loc>
+<lastmod>2025-06-21T05:34:08+07:00</lastmod>
+</url>
 </urlset>
