@@ -1,0 +1,32 @@
+name: Generate Sitemap
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v3
+
+    - name: Generate Sitemap
+      run: |
+        echo '<?xml version="1.0" encoding="UTF-8"?>' > sitemap.xml
+        echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' >> sitemap.xml
+        find . -name "*.html" | while read html; do
+          url="https://resta-travel.github.io${html#./}"
+          echo "  <url><loc>$url</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>" >> sitemap.xml
+        done
+        echo '</urlset>' >> sitemap.xml
+
+    - name: Commit and Push sitemap.xml
+      run: |
+        git config user.name "github-actions"
+        git config user.email "actions@github.com"
+        git add sitemap.xml
+        git commit -m "Update sitemap.xml automatically"
+        git push
