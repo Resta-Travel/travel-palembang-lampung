@@ -7,7 +7,6 @@
   <meta name="keywords" content="travel palembang lampung, travel lampung palembang, travel palembang jakarta, travel lampung jakarta">
   <meta name="author" content="Resta Travel">
   <title>Resta Travel | Travel Palembang Lampung & Jakarta</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -105,7 +104,6 @@
   </style>
   <meta name="google-site-verification" content="-BEScp4_VrtiUnTqyNyjCEsa16wlqmsXbMIqb_R3c6U" />
 </head>
-  
 <body>
 
 <div class="form-container">
@@ -117,8 +115,8 @@
     <label for="nama">Nama Pemesan</label>
     <input type="text" id="nama" placeholder="Masukkan Nama Anda" required>
 
-    <label for="pickup">Titik Penjemputan (tunggu hingga titik lokasi terbaca otomatis)</label>
-    <input type="text" id="pickup" placeholder="Titik Jemput (otomatis / geser map)" required>
+    <label for="pickup">Titik Penjemputan ( ketik lokasi & geser titik merah )</label>
+    <input type="text" id="pickup" placeholder="Cari lokasi penjemputan" required>
     <div id="map"></div>
 
     <label for="tgl">Tanggal Keberangkatan</label>
@@ -143,11 +141,9 @@
       <button type="button" data-seat="1" onclick="selectSeat(1)">No.1</button>
       <button type="button" class="empty" disabled></button>
       <button type="button" class="driver" disabled>DRIVER</button>
-
       <button type="button" data-seat="2" class="selected" onclick="selectSeat(2)">No.2</button>
       <button type="button" data-seat="3" onclick="selectSeat(3)">No.3</button>
       <button type="button" data-seat="4" onclick="selectSeat(4)">No.4</button>
-
       <button type="button" data-seat="5" onclick="selectSeat(5)">No.5</button>
       <button type="button" class="empty" disabled></button>
       <button type="button" data-seat="6" onclick="selectSeat(6)">No.6</button>
@@ -160,105 +156,105 @@
   </form>
 </div>
 
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-  let userLat = -2.9761;
-  let userLng = 104.7754;
+let currentLat = -2.9761;
+let currentLng = 104.7754;
 
-  function selectSeat(no) {
-    document.getElementById('kursi').value = no;
-    const buttons = document.querySelectorAll('.seat-map button[data-seat]');
-    buttons.forEach(btn => btn.classList.remove('selected'));
-    const target = document.querySelector(`.seat-map button[data-seat="${no}"]`);
-    if (target) target.classList.add('selected');
-    updateHarga();
+function selectSeat(no) {
+  document.getElementById('kursi').value = no;
+  document.querySelectorAll('.seat-map button[data-seat]').forEach(btn => btn.classList.remove('selected'));
+  const target = document.querySelector(`.seat-map button[data-seat='${no}']`);
+  if (target) target.classList.add('selected');
+  updateHarga();
+}
+
+function updateHarga() {
+  const tujuan = document.getElementById("rute").value;
+  const kursi = parseInt(document.getElementById("kursi").value);
+  let harga = 0;
+
+  const palembang = { lat: -2.9761, lng: 104.7754 };
+  const lampung = { lat: -5.3971, lng: 105.2668 };
+  const jakarta = { lat: -6.2088, lng: 106.8456 };
+
+  function isNear(a, b, range = 0.5) {
+    return Math.abs(a.lat - b.lat) < range && Math.abs(a.lng - b.lng) < range;
   }
 
-  function updateHarga() {
-    const tujuan = document.getElementById("rute").value;
-    const kursi = parseInt(document.getElementById("kursi").value);
-    let harga = 0;
+  let asal = "";
+  if (isNear({ lat: currentLat, lng: currentLng }, palembang)) asal = "palembang";
+  else if (isNear({ lat: currentLat, lng: currentLng }, lampung)) asal = "lampung";
+  else if (isNear({ lat: currentLat, lng: currentLng }, jakarta)) asal = "jakarta";
 
-    const palembang = { lat: -2.9761, lng: 104.7754 };
-    const lampung = { lat: -5.3971, lng: 105.2668 };
-    const jakarta = { lat: -6.2088, lng: 106.8456 };
-
-    function isNear(a, b, range = 0.5) {
-      return Math.abs(a.lat - b.lat) < range && Math.abs(a.lng - b.lng) < range;
-    }
-
-    let asal = "";
-    if (isNear({ lat: userLat, lng: userLng }, palembang)) asal = "palembang";
-    else if (isNear({ lat: userLat, lng: userLng }, lampung)) asal = "lampung";
-    else if (isNear({ lat: userLat, lng: userLng }, jakarta)) asal = "jakarta";
-
-    if ((asal === "palembang" && tujuan === "lampung") || (asal === "lampung" && tujuan === "palembang")) {
-      harga = kursi === 1 ? 300000 : kursi <= 4 ? 250000 : 250000;
-    } else if ((asal === "palembang" && tujuan === "jakarta") || (asal === "jakarta" && tujuan === "palembang")) {
-      harga = kursi === 1 ? 700000 : kursi <= 4 ? 650000 : 600000;
-    } else if ((asal === "lampung" && tujuan === "jakarta") || (asal === "jakarta" && tujuan === "lampung")) {
-      harga = kursi === 1 ? 400000 : kursi <= 4 ? 350000 : 350000;
-    }
-
-    document.getElementById("harga").value = `Rp ${harga.toLocaleString("id-ID")}`;
+  if ((asal === "palembang" && tujuan === "lampung") || (asal === "lampung" && tujuan === "palembang")) {
+    harga = kursi === 1 ? 300000 : 250000;
+  } else if ((asal === "palembang" && tujuan === "jakarta") || (asal === "jakarta" && tujuan === "palembang")) {
+    harga = kursi === 1 ? 700000 : kursi <= 4 ? 650000 : 600000;
+  } else if ((asal === "lampung" && tujuan === "jakarta") || (asal === "jakarta" && tujuan === "lampung")) {
+    harga = kursi === 1 ? 400000 : 350000;
   }
 
-  const map = L.map('map').setView([userLat, userLng], 13);
-  const marker = L.marker([userLat, userLng], { draggable: true }).addTo(map);
+  document.getElementById("harga").value = harga ? `Rp ${harga.toLocaleString("id-ID")}` : "";
+}
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
-  }).addTo(map);
+document.getElementById("waLink").addEventListener("click", function() {
+  const nama = document.getElementById("nama").value;
+  const pickup = document.getElementById("pickup").value;
+  const tgl = document.getElementById("tgl").value;
+  const waktu = document.getElementById("waktu").value;
+  const rute = document.getElementById("rute").value;
+  const kursi = document.getElementById("kursi").value;
+  const harga = document.getElementById("harga").value;
 
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(function(position) {
-      userLat = position.coords.latitude;
-      userLng = position.coords.longitude;
-      map.setView([userLat, userLng], 14);
-      marker.setLatLng([userLat, userLng]);
-      document.getElementById("pickup").value = `${userLat.toFixed(6)}, ${userLng.toFixed(6)}`;
-      updateHarga();
-    }, function() {
-      alert("Gagal mendeteksi lokasi.");
-    });
-  }
+  const tujuanTeks = rute.charAt(0).toUpperCase() + rute.slice(1);
+  const [lat, lng] = pickup.split(",").map(str => str.trim());
+  const mapsLink = `https://www.google.com/maps?q=${lat},${lng}`;
 
-  marker.on('dragend', function (e) {
-    const pos = marker.getLatLng();
-    userLat = pos.lat;
-    userLng = pos.lng;
-    document.getElementById("pickup").value = `${pos.lat.toFixed(6)}, ${pos.lng.toFixed(6)}`;
-    updateHarga();
-  });
+  const pesan = `Halo Admin Resta Travel.%0A%0A` +
+    `Saya ingin memesan travel:%0A` +
+    `Nama: ${nama}%0A` +
+    `Titik Jemput: ${pickup} %0A(Lihat lokasi: ${mapsLink})%0A` +
+    `Tanggal: ${tgl}%0A` +
+    `Jam: ${waktu} WIB%0A` +
+    `Kota Tujuan: ${tujuanTeks}%0A` +
+    `Kursi No: ${kursi}%0A` +
+    `Harga Tiket: ${harga}%0A%0A` +
+    `Mohon konfirmasi ketersediaan.`;
 
-  document.getElementById("waLink").addEventListener("click", function(e) {
-    const nama = document.getElementById("nama").value;
-    const pickup = document.getElementById("pickup").value;
-    const tgl = document.getElementById("tgl").value;
-    const waktu = document.getElementById("waktu").value;
-    const rute = document.getElementById("rute").value;
-    const kursi = document.getElementById("kursi").value;
-    const harga = document.getElementById("harga").value;
-
-    const tujuanTeks = rute.charAt(0).toUpperCase() + rute.slice(1);
-    const [lat, lng] = pickup.split(",").map(str => str.trim());
-    const mapsLink = `https://www.google.com/maps?q=${lat},${lng}`;
-
-    const pesan = `Halo Admin Resta Travel.%0A%0A` +
-      `Saya ingin memesan travel:%0A` +
-      `Nama: ${nama}%0A` +
-      `Titik Jemput: ${pickup} %0A(Lihat lokasi: ${mapsLink})%0A` +
-      `Tanggal: ${tgl}%0A` +
-      `Jam: ${waktu} WIB%0A` +
-      `Kota Tujuan: ${tujuanTeks}%0A` +
-      `Kursi No: ${kursi}%0A` +
-      `Harga Tiket: ${harga}%0A%0A` +
-      `Mohon konfirmasi ketersediaan.`;
-
-    const waUrl = `https://wa.me/628127488437?text=${pesan}`;
-    this.href = waUrl;
-  });
+  this.href = `https://wa.me/628127488437?text=${pesan}`;
+});
 </script>
-
+<script src="https://maps.gomaps.pro/maps/api/js?key=AlzaSyBfshyHHG8TGF6KiI7D8pyMf-yidzwqn_c&callback=initMap&libraries=places" async defer></script>
+<script>
+function initMap() {
+  const input = document.getElementById("pickup");
+  const autocomplete = new google.maps.places.Autocomplete(input);
+  const map = new google.maps.Map(document.getElementById("map"), {
+    center: { lat: currentLat, lng: currentLng },
+    zoom: 13,
+  });
+  const marker = new google.maps.Marker({
+    map,
+    draggable: true,
+    position: { lat: currentLat, lng: currentLng }
+  });
+  autocomplete.addListener("place_changed", () => {
+    const place = autocomplete.getPlace();
+    if (!place.geometry) return;
+    map.setCenter(place.geometry.location);
+    marker.setPosition(place.geometry.location);
+    currentLat = place.geometry.location.lat();
+    currentLng = place.geometry.location.lng();
+    updateHarga();
+  });
+  marker.addListener("dragend", () => {
+    const pos = marker.getPosition();
+    currentLat = pos.lat();
+    currentLng = pos.lng();
+    input.value = `${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
+    updateHarga();
+  });
+}
+</script>
 </body>
 </html>
