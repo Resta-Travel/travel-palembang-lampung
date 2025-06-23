@@ -103,21 +103,21 @@
     }
   </style>
   <meta name="google-site-verification" content="-BEScp4_VrtiUnTqyNyjCEsa16wlqmsXbMIqb_R3c6U" />
+  <meta name="google-site-verification" content="dEx7SPJHy178avmpyqC6GYpICB49DyGkipsgc9nfERc" />
 </head>
 <body>
 
 <div class="form-container">
   <div class="form-header">
     <h1>Resta Travel</h1>
-
     <h1>Form Pemesanan Tiket</h1>
   </div>
   <form onsubmit="return false;">
     <label for="nama">Nama Pemesan</label>
     <input type="text" id="nama" placeholder="Masukkan Nama Anda" required>
 
-    <label for="pickup">Titik Penjemputan ( ketik lokasi & geser titik merah )</label>
-    <input type="text" id="pickup" placeholder="Cari lokasi penjemputan" required>
+    <label for="pickup">Titik Penjemputan ( Ketik / Geser titik sesuai lokasi penjemputan)</label>
+    <input type="text" id="pickup" placeholder="Lokasi otomatis" required>
     <div id="map"></div>
 
     <label for="tgl">Tanggal Keberangkatan</label>
@@ -230,31 +230,49 @@ document.getElementById("waLink").addEventListener("click", function() {
 function initMap() {
   const input = document.getElementById("pickup");
   const autocomplete = new google.maps.places.Autocomplete(input);
-  const map = new google.maps.Map(document.getElementById("map"), {
-    center: { lat: currentLat, lng: currentLng },
-    zoom: 13,
-  });
-  const marker = new google.maps.Marker({
-    map,
-    draggable: true,
-    position: { lat: currentLat, lng: currentLng }
-  });
-  autocomplete.addListener("place_changed", () => {
-    const place = autocomplete.getPlace();
-    if (!place.geometry) return;
-    map.setCenter(place.geometry.location);
-    marker.setPosition(place.geometry.location);
-    currentLat = place.geometry.location.lat();
-    currentLng = place.geometry.location.lng();
-    updateHarga();
-  });
-  marker.addListener("dragend", () => {
-    const pos = marker.getPosition();
-    currentLat = pos.lat();
-    currentLng = pos.lng();
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(position => {
+      currentLat = position.coords.latitude;
+      currentLng = position.coords.longitude;
+      renderMap();
+    }, () => {
+      renderMap();
+    });
+  } else {
+    renderMap();
+  }
+
+  function renderMap() {
+    const map = new google.maps.Map(document.getElementById("map"), {
+      center: { lat: currentLat, lng: currentLng },
+      zoom: 13,
+    });
+    const marker = new google.maps.Marker({
+      map,
+      draggable: true,
+      position: { lat: currentLat, lng: currentLng }
+    });
     input.value = `${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
     updateHarga();
-  });
+
+    autocomplete.addListener("place_changed", () => {
+      const place = autocomplete.getPlace();
+      if (!place.geometry) return;
+      map.setCenter(place.geometry.location);
+      marker.setPosition(place.geometry.location);
+      currentLat = place.geometry.location.lat();
+      currentLng = place.geometry.location.lng();
+      updateHarga();
+    });
+    marker.addListener("dragend", () => {
+      const pos = marker.getPosition();
+      currentLat = pos.lat();
+      currentLng = pos.lng();
+      input.value = `${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
+      updateHarga();
+    });
+  }
 }
 </script>
 </body>
